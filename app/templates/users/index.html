@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block titulo_pagina %}Lista de Usuarios{% endblock %}
+{% block content %}
+    
+    <div class="text-start">
+        <a href="{{ url_for('user.add') }}" class="btn btn-primary btn-sm mb-1">
+            <i class="bi bi-person-plus"></i> Agregar usuario
+        </a>
+    </div>
+    <div class="row mb-3 g-2 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Buscar por nombre o email...">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-filter"></i></span>
+                <select id="roleFilter" class="form-select border-start-0">
+                    <option value="">Todos los Roles</option>
+                    <option value="usuario">Usuario</option>
+
+                    <option value="entrenador">Entrenador</option>
+                    <option value="recepcionista">Recepcionista</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: rgba(15, 52, 96, 0.6);">
+                    <tr class="text-info">
+                        <th class="py-3">ID</th>
+                        <th class="py-3">Nombre</th>
+                        <th class="py-3">Teléfono</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Rol</th>
+                        <th class="py-3">Creado en</th>
+                        <th class="py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    {% for user in data %}
+                        <tr class="user-row" data-rol="{{ user.rol }}">
+                            <td>{{ user.idUser }}</td>
+                            <td class="fw-bold">{{ user.nameUser }}</td>
+                            <td>{{ user.telefono or '-' }}</td>
+                            <td>{{ user.emailUser or '-' }}</td>
+                            <td>
+                                <span class="badge {% if user.rol == 'admin' %}bg-danger{% elif user.rol == 'entrenador' %}bg-primary{% elif user.rol == 'recepcionista' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                                    {{ user.rol | capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user.creado_enUser %}
+                                {{ user.creado_enUser.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a href="{{ url_for('user.detail', id=user.idUser) }}" class="btn btn-outline-success btn-sm" title="Detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if current_user.rol == 'admin' or current_user.idUser == user.idUser %}
+                                    <a href="{{ url_for('user.edit', id=user.idUser) }}" class="btn btn-outline-primary btn-sm" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form action="{{ url_for('user.delete', id=user.idUser) }}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+        const rows = document.querySelectorAll('.user-row');
+
+        function filterTable() {
+            const searchValue = searchInput.value.toLowerCase();
+            const roleValue = roleFilter.value.toLowerCase();
+
+            rows.forEach(row => {
+                const userName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const userEmail = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                const userRole = row.getAttribute('data-rol').toLowerCase();
+
+                const matchesSearch = userName.includes(searchValue) || userEmail.includes(searchValue);
+                const matchesRole = roleValue === '' || userRole === roleValue;
+
+                if (matchesSearch && matchesRole) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('keyup', filterTable);
+        roleFilter.addEventListener('change', filterTable);
+    </script>
+{% endblock %}

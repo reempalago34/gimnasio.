@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-card p-4 p-md-5 mb-5 bg-primary text-white rounded-4 shadow-sm"
+  style="background: linear-gradient(135deg, #0f3460 0%, #1a447a 100%);">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-4">
+    <div>
+      <h1 class="display-6 fw-bold">¡Hola, {{ current_user.nombre }}!</h1>
+      <p class="lead text-white-50">Bienvenido a Fit Nation.</p>
+    </div>
+    {% if current_user.rol in ['usuario', 'admin', 'recepcionista'] %}
+    <div class="text-md-end">
+      {% if asistencia_cliente %}
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-end">
+            <small class="d-block text-white-50">Llegaste a las: {{ asistencia_cliente.hora_entrada.strftime('%H:%M') }}</small>
+            <span class="badge bg-success border border-white-50">Sesión en curso</span>
+          </div>
+          <a href="{{ url_for('cliente_routes.marcar_salida', id_asistencia=asistencia_cliente.idAsistencia) }}" class="btn btn-danger px-4 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-door-closed-fill me-2"></i>Marcar Salida
+          </a>
+        </div>
+      {% else %}
+        <a href="{{ url_for('cliente_routes.marcar_entrada') }}" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill shadow-sm">
+          <i class="bi bi-door-open-fill me-2"></i>Marcar Entrada Gym
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+  {% if current_user.rol in ['admin', 'recepcionista'] %}
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm text-center py-4">
+      <div class="card-body">
+        <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
+        <h2 class="display-4 fw-bold mt-3">{{ total_clientes }}</h2>
+        <h5 class="text-muted">Clientes Registrados</h5>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if current_user.rol in ['admin', 'recepcionista'] %}
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm text-center py-4">
+      <div class="card-body">
+        <i class="bi bi-card-checklist text-success" style="font-size: 3rem;"></i>
+        <h2 class="display-4 fw-bold mt-3">{{ total_planes }}</h2>
+        <h5 class="text-muted">Planes Activos</h5>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm text-center py-4">
+      <div class="card-body">
+        <i class="bi bi-journal-check text-warning" style="font-size: 3rem;"></i>
+        <h2 class="display-4 fw-bold mt-3">{{ total_inscripciones }}</h2>
+        <h5 class="text-muted">Inscripciones Totales</h5>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% if mis_horarios or current_user.rol == 'usuario' or current_user.rol == 'entrenador' %}
+<div class="row mt-5 mb-4">
+
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header py-3 d-flex justify-content-between align-items-center border-bottom-0">
+        <h4 class="mb-0 fw-bold">
+          {% if current_user.rol == 'entrenador' %}
+            <i class="bi bi-calendar3 me-2 text-info"></i>Mis Alumnos y Horarios
+          {% else %}
+            <i class="bi bi-calendar-check me-2 text-success"></i>Mis Horarios de Entrenamiento
+          {% endif %}
+        </h4>
+        <a href="{{ url_for('horario_routes.index') }}" class="btn btn-sm btn-outline-info">
+          {% if current_user.rol == 'usuario' %}Gestionar Horarios{% else %}Ver Todos{% endif %}
+        </a>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-info">
+                <th class="ps-4">Día</th>
+                <th>Horario</th>
+                <th>Entrenador</th>
+                {% if current_user.rol == 'entrenador' %}
+                <th>Alumnos Inscritos</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for h in mis_horarios %}
+              <tr>
+                <td class="ps-4"><span class="badge rounded-pill bg-primary">{{ h.dia_semana }}</span></td>
+                <td><i class="bi bi-clock me-1 opacity-50"></i>{{ h.hora_inicio }} - {{ h.hora_fin }}</td>
+                <td><span class="fw-bold">{{ h.trainer.nombre }}</span></td>
+                {% if current_user.rol == 'entrenador' %}
+                <td>
+                  {% if h.usuarios_inscritos %}
+                    {% for u in h.usuarios_inscritos %}
+                      <span class="badge bg-light text-dark border">{{ u.nombre }}</span>
+                    {% endfor %}
+                  {% else %}
+                    <span class="text-muted small">Sin alumnos</span>
+                  {% endif %}
+                </td>
+                {% endif %}
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4" class="text-center py-5 text-muted">
+                  <i class="bi bi-calendar-x d-block mb-2" style="font-size: 2rem;"></i>
+                  No tienes horarios {% if current_user.rol == 'entrenador' %}asignados{% else %}seleccionados{% endif %} todavía.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+{% if current_user.rol in ['admin', 'recepcionista'] %}
+<div class="card border-0 shadow-sm">
+  <div class="card-header py-3 d-flex justify-content-between align-items-center border-bottom-0">
+    <h4 class="mb-0 fw-bold">Últimas Inscripciones</h4>
+    <a href="{{ url_for('inscripcion_routes.index') }}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th class="ps-4">Fecha</th>
+            <th>Cliente</th>
+            <th>Plan Seleccionado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inscripcion in inscripciones %}
+          <tr>
+            <td class="ps-4 text-muted">{{ inscripcion.fecha.strftime('%d/%m/%Y %H:%M') if inscripcion.fecha else 'N/A'
+              }}</td>
+            <td class="fw-bold">{{ inscripcion.cliente.nombre }}</td>
+            <td><span class="badge bg-primary">{{ inscripcion.plan.nombrePlan }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" class="text-center py-4 text-muted">No se han registrado inscripciones aún.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+.git/
+.gitignore
+instance/
+.pytest_cache/
+debug.log
+server_log.txt
+*.sqlite

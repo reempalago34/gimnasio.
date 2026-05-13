@@ -1,0 +1,57 @@
+{% extends 'form-base.html' %}
+{% block titulo_pagina %}Registrar Pago{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('pago_routes.add') }}" method="post" class="needs-validation" novalidate>
+    <div class="form-group mb-3">
+        <label for="idCliente" class="form-label"><i class="bi bi-person me-1"></i>Seleccionar Cliente</label>
+        <select name="idCliente" id="idCliente" class="form-select border-0 px-3 py-2 bg-light" required>
+            <option value="" selected disabled>Elija un cliente...</option>
+            {% for cliente in clientes %}
+            <option value="{{ cliente.idCliente }}">{{ cliente.nombre }}</option>
+            {% endfor %}
+        </select>
+        <div class="invalid-feedback">Debe seleccionar un cliente.</div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="monto" class="form-label"><i class="bi bi-currency-dollar me-1"></i>Monto a Pagar</label>
+        <input type="number" step="0.01" name="monto" id="monto" class="form-control" placeholder="0.00" required>
+        <div class="invalid-feedback">Ingrese un monto válido.</div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="metodo_pago" class="form-label"><i class="bi bi-credit-card me-1"></i>Método de Pago</label>
+        <select name="metodo_pago" id="metodo_pago" class="form-select border-0 px-3 py-2 bg-light" required>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+        </select>
+    </div>
+
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-success btn-lg">
+            <i class="bi bi-check-lg me-1"></i> Confirmar Pago
+        </button>
+        <a href="{{ url_for('pago_routes.index') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+<script>
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}

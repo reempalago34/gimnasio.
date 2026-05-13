@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Horarios de Entrenadores{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-end mb-4">
+        {% if current_user.rol == 'admin' %}
+        <a href="{{ url_for('horario_routes.add') }}" class="btn btn-primary">
+            <i class="bi bi-clock-history me-1"></i> Asignar Nuevo Horario
+        </a>
+        {% endif %}
+        {% if current_user.rol in ['admin', 'entrenador'] %}
+        <a href="{{ url_for('horario_routes.historial') }}" class="btn btn-outline-info">
+            <i class="bi bi-journal-text me-1"></i> Ver Historial
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="card p-3 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead style="background: rgba(15, 52, 96, 0.6);">
+                    <tr class="text-info">
+                        <th class="py-3">Entrenador</th>
+                        <th class="py-3">Día</th>
+                        <th class="py-3">Hora Inicio</th>
+                        <th class="py-3">Hora Fin</th>
+                        {% if current_user.rol in ['admin', 'entrenador'] %}
+                        <th class="py-3">Usuarios Inscritos</th>
+                        {% endif %}
+                        <th class="py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for horario in horarios %}
+                    <tr>
+                        <td class="fw-bold">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%;">
+                                    {{ horario.trainer.nombre[0].upper() }}
+                                </div>
+                                {{ horario.trainer.nombre }}
+                            </div>
+                        </td>
+                        <td><span class="badge rounded-pill bg-info text-dark">{{ horario.dia_semana }}</span></td>
+                        <td><i class="bi bi-clock me-1 text-muted"></i>{{ horario.hora_inicio }}</td>
+                        <td><i class="bi bi-clock-fill me-1 text-muted"></i>{{ horario.hora_fin }}</td>
+                        
+                        {% if current_user.rol in ['admin', 'entrenador'] %}
+                        <td>
+                            {% if horario.usuarios_inscritos %}
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for u in horario.usuarios_inscritos %}
+                                        <span class="badge bg-light text-dark border" title="{{ u.email }}">{{ u.nombre }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-muted small italic">Nadie inscrito</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+
+                        <td class="text-center">
+                            {% if current_user.rol == 'admin' %}
+                            <a href="{{ url_for('horario_routes.edit', id=horario.idHorario) }}" class="btn btn-sm btn-outline-info me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('horario_routes.delete', id=horario.idHorario) }}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este horario?');">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if current_user.rol == 'usuario' %}
+                                {% if current_user in horario.usuarios_inscritos %}
+                                <a href="{{ url_for('horario_routes.deseleccionar', id=horario.idHorario) }}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-x-circle me-1"></i> Deseleccionar
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('horario_routes.seleccionar', id=horario.idHorario) }}" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle me-1"></i> Seleccionar
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                            {% if current_user.rol == 'entrenador' and horario.idUser == current_user.idUser %}
+                                {% if asistencia_activa %}
+                                    {% if asistencia_activa.idHorario == horario.idHorario %}
+                                    <a href="{{ url_for('horario_routes.marcar_salida', id_asistencia=asistencia_activa.idAsistencia) }}" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Marcar Salida
+                                    </a>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Otra sesión activa</span>
+                                    {% endif %}
+                                {% else %}
+                                <a href="{{ url_for('horario_routes.marcar_entrada', id_horario=horario.idHorario) }}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Marcar Entrada
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-calendar-x d-block mb-2" style="font-size: 2rem;"></i>
+                            No hay horarios asignados aún.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

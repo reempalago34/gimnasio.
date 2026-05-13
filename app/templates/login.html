@@ -1,0 +1,44 @@
+{% extends "login-base.html" %}
+
+{% block content %}
+
+<div class="card shadow-lg border-0 rounded-lg">
+    <div class="card-header text-white text-center">
+        <i class="bi bi-dumbbell display-4 mb-3 d-block"></i>
+        <h1 class="mb-2"> Fit Nation </h1>
+        <p class="small mb-0">Inicia sesión para comenzar a cuidarte mejor</p>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" action="{{ url_for('auth.login') }}">
+            <div class="form-group mb-3">
+                <label for="nameUser" class="form-label"><i class="bi bi-person"></i> Usuario</label>
+                <input type="text" name="nameUser" id="nameUser" class="form-control" placeholder="Ingresa tu usuario"
+                    required>
+            </div>
+            <div class="form-group mb-4">
+                <label for="passwordUser" class="form-label"><i class="bi bi-lock"></i> Contraseña</label>
+                <div class="input-group">
+                    <input type="password" name="passwordUser" id="passwordUser" class="form-control"
+                        placeholder="Ingresa tu contraseña" required>
+                    <button class="btn toggle-password" type="button" data-target="passwordUser">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                </button>
+            </div>
+        </form>
+        <hr class="my-4">
+        <div class="text-center">
+            <p class="text-muted small mb-3">¿No tienes cuenta?</p>
+            <a href="{{ url_for('user.add') }}" class="btn btn-secondary btn-block w-100">
+                <i class="bi bi-person-plus me-2"></i>Crear Cuenta
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

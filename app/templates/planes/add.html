@@ -1,0 +1,22 @@
+{% extends 'form-base.html' %}
+{% block titulo_pagina %}Agregar Plan{% endblock %}
+{% block content %}
+<form method="POST">
+    <div class="form-group mb-3">
+        <label class="form-label">Nombre del Plan</label>
+        <input type="text" name="nombrePlan" class="form-control" required placeholder="Ej. Plan Anual Pro">
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Precio (Moneda local)</label>
+        <input type="number" step="0.01" name="precio" class="form-control" required placeholder="Ej. 1500.00">
+    </div>
+    <div class="form-group mb-4">
+        <label class="form-label">Duración en Meses</label>
+        <input type="number" name="duracionMeses" class="form-control" required placeholder="Ej. 12">
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Guardar Plan</button>
+        <a href="{{ url_for('plan_routes.index') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

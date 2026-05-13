@@ -1,0 +1,88 @@
+{% extends "form-base.html" %}
+{% block titulo_pagina %}Editar Usuario {{ user.nameUser }}{% endblock %}
+{% block content %}
+<form action="{{ url_for('user.edit', id=user.idUser) }}" method="post" class="needs-validation" novalidate>
+    <div class="form-group mb-3">
+        <label for="nameUser" class="form-label"><i class="bi bi-person me-1"></i>Nombre de Usuario:</label>
+        <input type="text" id="nameUser" name="nameUser" value="{{ user.nameUser }}" required class="form-control">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="telefonoUser" class="form-label"><i class="bi bi-telephone me-1"></i>Teléfono:</label>
+        <input type="text" id="telefonoUser" name="telefonoUser" value="{{ user.telefono or '' }}" class="form-control">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="emailUser" class="form-label"><i class="bi bi-envelope me-1"></i>Email:</label>
+        <input type="email" id="emailUser" name="emailUser" value="{{ user.emailUser }}" required class="form-control">
+    </div>
+   
+    <div class="form-group mb-3">
+        <label for="passwordUser" class="form-label"><i class="bi bi-lock me-1"></i>Contraseña:</label>
+        <div class="input-group">
+            <input type="password" id="passwordUser" name="passwordUser" class="form-control" placeholder="Mínimo 6 caracteres">
+            <button class="btn toggle-password" type="button" data-target="passwordUser">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+        <small class="text-muted">Déjalo vacío si no deseas cambiar la contraseña</small>
+    </div>
+
+    <div class="form-group mb-4">
+        <label for="confirmPassword" class="form-label"><i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña:</label>
+        <div class="input-group">
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Repite tu contraseña">
+            <button class="btn toggle-password" type="button" data-target="confirmPassword">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+    </div>
+
+    {% if current_user.rol == 'admin' %}
+    <div class="form-group mb-4">
+        <label for="rol" class="form-label fw-bold"><i class="bi bi-shield-lock me-1"></i>Rol del Sistema:</label>
+        <select name="rol" id="rol" class="form-select border-0 px-3 py-2 bg-light">
+            <option value="usuario" {% if user.rol == 'usuario' %}selected{% endif %}>Usuario</option>
+
+            <option value="entrenador" {% if user.rol == 'entrenador' %}selected{% endif %}>Entrenador</option>
+            <option value="recepcionista" {% if user.rol == 'recepcionista' %}selected{% endif %}>Recepcionista</option>
+            <option value="admin" {% if user.rol == 'admin' %}selected{% endif %}>Administrador</option>
+        </select>
+    </div>
+    {% endif %}
+    
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-circle me-1"></i>Actualizar Usuario</button>
+        <a href="{{ url_for('user.index') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+<script>
+    // Validación de formulario basica
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    var pass = document.getElementById('passwordUser').value;
+                    var confirmPass = document.getElementById('confirmPassword').value;
+
+                    if (pass !== confirmPass) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        alert('Las contraseñas no coinciden.');
+                        return;
+                    }
+
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}

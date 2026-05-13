@@ -1,0 +1,70 @@
+{% extends 'form-base.html' %}
+{% block titulo_pagina %}Nueva Inscripción{% endblock %}
+{% block content %}
+<form method="POST">
+    <h5 class="mb-3 text-primary border-bottom pb-2">1. Datos Personales</h5>
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Nombre Completo</label>
+            {% if current_user.rol == 'usuario' %}
+                <input type="text" class="form-control bg-light" value="{{ current_user.nombre }}" readonly>
+            {% else %}
+                <input type="text" name="nombre" class="form-control" required placeholder="Ej. Carlos Torres">
+            {% endif %}
+        </div>
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Correo Electrónico</label>
+            {% if current_user.rol == 'usuario' %}
+                <input type="email" name="email" class="form-control bg-light" value="{{ current_user.email or '' }}" readonly>
+            {% else %}
+                <input type="email" name="email" class="form-control" placeholder="Ej. correo@ejemplo.com" required>
+            {% endif %}
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Edad</label>
+            <input type="number" name="edad" class="form-control" required placeholder="Ej. 25">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Teléfono</label>
+            {% if current_user.rol == 'usuario' %}
+                <input type="text" name="telefono" class="form-control" value="{{ current_user.telefono or '' }}" placeholder="Ej. 3001234567" required>
+            {% else %}
+                <input type="text" name="telefono" class="form-control" placeholder="Ej. 3001234567" required>
+            {% endif %}
+        </div>
+    </div>
+
+    <h5 class="mb-3 text-primary border-bottom pb-2 mt-3">2. Selección de Plan y Horario</h5>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Seleccionar Plan</label>
+            <select name="idPlan" class="form-control form-select" required>
+                <option value="" disabled selected>-- Elija un plan activo --</option>
+                {% for plan in planes %}
+                 <option value="{{ plan.idPlan }}">{{ plan.nombrePlan }} - ${{ plan.precio }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Seleccionar Horario y Entrenador</label>
+            <select name="idHorario" class="form-control form-select" required>
+                <option value="" disabled selected>-- Elija su turno --</option>
+                {% for horario in horarios %}
+                 <option value="{{ horario.idHorario }}">{{ horario.dia_semana }}: {{ horario.hora_inicio }} - {{ horario.hora_fin }} (Prof. {{ horario.trainer.nombre }})</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-check mb-4 mt-3">
+        <input class="form-check-input" type="checkbox" name="terminos" value="1" id="terminos" required>
+        <label class="form-check-label text-muted" for="terminos">
+            Acepto los términos y condiciones de inscripción del gimnasio.
+        </label>
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Confirmar Inscripción</button>
+        <a href="{{ url_for('inscripcion_routes.index') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

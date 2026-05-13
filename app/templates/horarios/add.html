@@ -1,0 +1,66 @@
+{% extends 'form-base.html' %}
+{% block titulo_pagina %}Asignar Horario a Entrenador{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('horario_routes.add') }}" method="post" class="needs-validation" novalidate>
+    <div class="form-group mb-3">
+        <label for="idUser" class="form-label"><i class="bi bi-person-badge me-1"></i>Seleccionar Entrenador</label>
+        <select name="idUser" id="idUser" class="form-select border-0 px-3 py-2 bg-light" required>
+            <option value="" selected disabled>Elija un entrenador...</option>
+            {% for trainer in trainers %}
+            <option value="{{ trainer.idUser }}">{{ trainer.nombre }}</option>
+            {% endfor %}
+        </select>
+        <div class="invalid-feedback">Debe seleccionar un entrenador.</div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="dia_semana" class="form-label"><i class="bi bi-calendar-day me-1"></i>Día de la Semana</label>
+        <select name="dia_semana" id="dia_semana" class="form-select border-0 px-3 py-2 bg-light" required>
+            <option value="" selected disabled>Elija un día...</option>
+            {% for dia in dias %}
+            <option value="{{ dia }}">{{ dia }}</option>
+            {% endfor %}
+        </select>
+        <div class="invalid-feedback">Debe seleccionar un día.</div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="hora_inicio" class="form-label"><i class="bi bi-clock me-1"></i>Hora de Inicio</label>
+            <input type="time" name="hora_inicio" id="hora_inicio" class="form-control" required>
+            <div class="invalid-feedback">Ingrese la hora de inicio.</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="hora_fin" class="form-label"><i class="bi bi-clock-fill me-1"></i>Hora de Fin</label>
+            <input type="time" name="hora_fin" id="hora_fin" class="form-control" required>
+            <div class="invalid-feedback">Ingrese la hora de fin.</div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-save me-1"></i> Guardar Horario
+        </button>
+        <a href="{{ url_for('horario_routes.index') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+<script>
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}

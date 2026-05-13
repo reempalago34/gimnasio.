@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Listado de Inscripciones{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-end mb-4">
+        {% if not has_active_inscription or current_user.rol in ['admin', 'entrenador', 'recepcionista'] %}
+        <a href="{{ url_for('inscripcion_routes.add') }}" class="btn btn-primary"><i
+                class="bi bi-journal-plus me-1"></i> Nueva Inscripción</a>
+        {% endif %}
+    </div>
+
+    <div class="card p-3 shadow-sm border-0">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Cliente</th>
+                    <th>Plan Efectuado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inscripcion in inscripciones %}
+                <tr>
+                    <td>{{ inscripcion.idInscripcion }}</td>
+                    <td>{{ inscripcion.fecha.strftime('%Y-%m-%d %H:%M') if inscripcion.fecha else 'N/A' }}</td>
+                    <td class="fw-bold text-primary">{{ inscripcion.cliente.nombre }}</td>
+                    <td><span class="badge bg-success">{{ inscripcion.plan.nombrePlan }}</span></td>
+                    <td>
+                        {% if current_user.rol in ['admin', 'entrenador', 'recepcionista'] or (current_user.rol == 'usuario' and inscripcion.cliente.nombre == current_user.nombre) %}
+                        <form action="{{ url_for('inscripcion_routes.delete', id=inscripcion.idInscripcion) }}"
+                            method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Seguro que deseas cancelar esta inscripción?');"><i
+                                    class="bi bi-x-circle me-1"></i> Cancelar</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted small">Sin acciones</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Aún no hay inscripciones activas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
