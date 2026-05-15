@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-flask_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5439:5432"
     networks:
       - flask_network
     healthcheck:
