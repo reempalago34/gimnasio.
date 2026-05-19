@@ -1,15 +1,85 @@
+# Archivos Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Entornos virtuales
 .venv/
 venv/
 ENV/
 env/
-.env
-.git/
-.gitignore
-instance/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 .pytest_cache/
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Desarrollo
+.env
+.env.local
+.env.*.local
 debug.log
 server_log.txt
+
+# Base de datos
+instance/
 *.sqlite
+*.sqlite3
+*.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentación y configuración
+README.md
+COOLIFY_DEPLOYMENT.md
+.env.example
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Otros
+scratch/
+test/
+node_modules/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+

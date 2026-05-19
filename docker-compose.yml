@@ -20,22 +20,33 @@ services:
       retries: 5
 
   web:
-    build: .
+    build: 
+      context: .
+      args:
+        PORT: ${PORT:-81}
     container_name: flask_app
     restart: always
     ports:
-      - "81:81"
+      - "${PORT:-81}:${PORT:-81}"
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY}
       - ADMIN_NAME=${ADMIN_NAME}
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - PORT=${PORT:-81}
+      - FLASK_ENV=production
     depends_on:
       db:
         condition: service_healthy
     networks:
       - flask_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-81}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   flask_network:

@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
 
-# Cargar variables desde .env (solo para desarrollo local)
-load_dotenv()
+# Cargar variables desde .env solo en desarrollo local
+if os.environ.get('FLASK_ENV') == 'development':
+    load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
