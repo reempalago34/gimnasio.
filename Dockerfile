@@ -8,11 +8,13 @@ WORKDIR /app
 ARG PORT=81
 ENV PORT=${PORT}
 
-# Instalar dependencias del sistema necesarias para psycopg2 y otras librerías
+# Instalar dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     libzbar0 \
+    netcat-traditional \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar el archivo de requerimientos e instalarlos
@@ -20,12 +22,19 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir gunicorn psycopg2-binary
 
+# Copiar el script de startup
+COPY start.sh .
+RUN chmod +x start.sh
+
 # Copiar el resto del código de la aplicación
 COPY . .
 
 # Exponer el puerto dinámico
 EXPOSE ${PORT}
 
-# Comando para ejecutar la aplicación con Gunicorn en producción
-# El puerto se puede pasar como variable de entorno
-CMD gunicorn --bind 0.0.0.0:${PORT} --workers 4 --worker-class sync --timeout 60 --access-logfile - --error-logfile - run:app
+# Health check para Docker/Coolify
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Comando para ejecutar la aplicación
+CMD ["./start.sh"]

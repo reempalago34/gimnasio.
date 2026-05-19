@@ -1,7 +1,10 @@
 from app import create_app, db
 
+# Crear la app sin ejecutarla inmediatamente
 app = create_app()
 
 if __name__ == '__main__':
-    #socketio.run(app, host="0.0.0.0", port=80, debug=True, allow_unsafe_werkzeug=True)
+    # Solo se ejecuta en desarrollo local, nunca con Gunicorn
+    with app.app_context():
+        db.create_all()
     app.run(debug=False, host='0.0.0.0', port=81)

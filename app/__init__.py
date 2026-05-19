@@ -6,8 +6,12 @@ import os
 db = SQLAlchemy()
 login_manager = LoginManager()
 
-def create_app():
+# Variable para rastrear si las tablas ya fueron creadas
+_db_initialized = False
 
+def create_app():
+    global _db_initialized
+    
     app = Flask(__name__)    
     app.config.from_object('config.Config')
     db.init_app(app)
@@ -28,10 +32,21 @@ def create_app():
     def load_user(idUser):
         return User.query.get(int(idUser))
 
-    # Create database tables and seed admin if necessary
-    with app.app_context():
-        db.create_all()
-        seed_admin(app)
+    # Inicializar BD en el primer request para evitar errores de conexión
+    @app.before_request
+    def init_db():
+        global _db_initialized
+        if not _db_initialized:
+            try:
+                with app.app_context():
+                    db.create_all()
+                    seed_admin(app)
+                    _db_initialized = True
+                    print("Database initialized successfully")
+            except Exception as e:
+                # Log el error pero no falla la app
+                print(f"Warning: Could not initialize database on first request: {str(e)}")
+                # Intenta de nuevo en el siguiente request
 
     # Register blueprints
     from app.routes import (
@@ -55,6 +70,16 @@ def create_app():
             'favicon.ico', mimetype='image/x-icon'
         )
 
+    @app.route('/health')
+    def health():
+        """Health check endpoint para Coolify/Docker"""
+        try:
+            # Intenta hacer una query simple para verificar la BD
+            db.session.execute(db.text('SELECT 1'))
+            return {'status': 'healthy'}, 200
+        except Exception as e:
+            return {'status': 'unhealthy', 'error': str(e)}, 503
+
     @app.errorhandler(404)
     def not_found(e):
         # Si la ruta no existe, redirigir al login
@@ -77,14 +102,18 @@ def seed_admin(app):
     if not admin_email or not admin_password:
         return
 
-    admin_user = User.query.filter_by(email=admin_email).first()
-    if not admin_user:
-        admin_user = User(
-            nombre=admin_name,
-            email=admin_email,
-            passwordUser=admin_password,
-            rol='admin'
-        )
-        db.session.add(admin_user)
-        db.session.commit()
-        print(f"Admin user {admin_email} created successfully.")
+    try:
+        admin_user = User.query.filter_by(email=admin_email).first()
+        if not admin_user:
+            admin_user = User(
+                nombre=admin_name,
+                email=admin_email,
+                passwordUser=admin_password,
+                rol='admin'
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print(f"Admin user {admin_email} created successfully.")
+    except Exception as e:
+        print(f"Warning: Could not seed admin user: {str(e)}")
+        db.session.rollback()
