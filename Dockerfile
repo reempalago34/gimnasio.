@@ -17,16 +17,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar el archivo de requerimientos e instalarlos
+# Copiar requerimientos e instalarlos
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir gunicorn psycopg2-binary
 
-# Copiar el resto del código de la aplicación
-COPY . .
+# Copiar el resto del código de la aplicación con permisos de ejecución para start.sh
+COPY --chmod=755 . .
 
-# Dar permisos de ejecución al script
-RUN chmod +x /app/start.sh
+# Dar permisos adicionales al script start.sh
+RUN chmod +x /app/start.sh && ls -la /app/start.sh
 
 # Exponer el puerto dinámico
 EXPOSE ${PORT}
