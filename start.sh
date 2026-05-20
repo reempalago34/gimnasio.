@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Script para iniciar la aplicación Flask con Gunicorn
 # Espera a que PostgreSQL esté disponible antes de iniciar
 

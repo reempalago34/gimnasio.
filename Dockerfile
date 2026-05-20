@@ -22,12 +22,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir gunicorn psycopg2-binary
 
-# Copiar el script de startup
-COPY start.sh .
-RUN chmod +x start.sh
-
 # Copiar el resto del código de la aplicación
 COPY . .
+
+# Dar permisos de ejecución al script
+RUN chmod +x /app/start.sh
 
 # Exponer el puerto dinámico
 EXPOSE ${PORT}
@@ -36,5 +35,5 @@ EXPOSE ${PORT}
 HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
     CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Comando para ejecutar la aplicación
-CMD ["./start.sh"]
+# Comando para ejecutar la aplicación usando /bin/bash
+CMD ["/bin/bash", "/app/start.sh"]
