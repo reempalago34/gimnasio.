@@ -1,5 +1,5 @@
 services:
-  db:
+  postgres-db:
     image: postgres:15-alpine
     container_name: flask_db
     restart: always
@@ -13,7 +13,7 @@ services:
     # ports:
     #   - "5439:5432" # Descomentar solo para mantenimiento local
     networks:
-      - flask_network
+      - coolify
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -43,10 +43,10 @@ services:
       - PORT=${PORT:-81}
       - FLASK_ENV=production
     depends_on:
-      db:
+      postgres-db:
         condition: service_healthy
     networks:
-      - flask_network
+      - coolify
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${PORT:-81}/health"]
       interval: 30s
@@ -60,7 +60,7 @@ services:
         max-file: "3"
 
 networks:
-  flask_network:
+  coolify:
     driver: bridge
 
 volumes:
