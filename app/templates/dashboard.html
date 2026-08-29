@@ -130,66 +130,6 @@
 {% endif %}
 
 
-{% if qr_info %}
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-header py-3 d-flex justify-content-between align-items-center border-bottom-0 bg-success text-white">
-    <h4 class="mb-0 fw-bold"><i class="bi bi-qr-code me-2"></i>Tu Código QR de Inscripción</h4>
-    <a href="{{ url_for('qr.generar_qr', id_cliente=qr_info.cliente.idCliente) }}" class="btn btn-sm btn-light text-success fw-bold">
-      <i class="bi bi-zoom-in"></i> Ver QR Completo
-    </a>
-  </div>
-  <div class="card-body">
-    <div class="row align-items-center">
-      <div class="col-md-4 text-center">
-        <div class="qr-preview bg-light p-4 rounded-3">
-          <img src="{{ url_for('qr.generar_qr', id_cliente=qr_info.cliente.idCliente, format='image') }}" alt="QR Preview" class="img-fluid" style="max-width: 180px;">
-        </div>
-      </div>
-      <div class="col-md-8">
-        <div class="p-3">
-          <h4 class="fw-bold mb-3 text-dark">{{ qr_info.cliente.nombre }}</h4>
-          
-          <div class="mb-3">
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-person-badge me-2 text-primary"></i>
-              <span class="text-dark fw-medium">ID Cliente:</span>
-              <strong class="ms-2 text-dark">{{ qr_info.cliente.idCliente }}</strong>
-            </div>
-            
-            <div class="alert {% if qr_info.pagado %}alert-success{% else %}alert-warning{% endif %} py-2 px-3">
-              <div class="d-flex align-items-center">
-                <i class="bi {% if qr_info.pagado %}bi-check-circle-fill{% else %}bi-exclamation-circle-fill{% endif %} me-2"></i>
-                <strong class="text-dark">Estado de Pago:</strong>
-                <span class="ms-2 text-dark">{{ qr_info.mensaje_pago }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="bg-white border p-3 rounded-3 mb-3">
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-calendar-event me-2 text-primary"></i>
-              <span class="text-dark fw-medium">Fecha de Inscripción:</span>
-              <strong class="ms-2 text-dark">{{ qr_info.inscripcion.fecha.strftime('%Y-%m-%d %H:%M') if qr_info.inscripcion.fecha else 'N/A' }}</strong>
-            </div>
-            <div class="d-flex align-items-center">
-              <i class="bi bi-hash me-2 text-primary"></i>
-              <span class="text-dark fw-medium">ID Inscripción:</span>
-              <strong class="ms-2 text-dark">{{ qr_info.inscripcion.idInscripcion }}</strong>
-            </div>
-          </div>
-          
-          <div class="mt-3">
-            <a href="{{ url_for('qr.descargar_qr', id_cliente=qr_info.cliente.idCliente) }}" class="btn btn-primary btn-md">
-              <i class="bi bi-download me-1"></i> Descargar QR
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
 {% if current_user.rol in ['admin', 'recepcionista'] %}
 <div class="card border-0 shadow-sm">
   <div class="card-header py-3 d-flex justify-content-between align-items-center border-bottom-0">
@@ -204,7 +144,6 @@
             <th class="ps-4">Fecha</th>
             <th>Cliente</th>
             <th>Plan Seleccionado</th>
-            <th>QR</th>
           </tr>
         </thead>
         <tbody>
@@ -214,15 +153,10 @@
               }}</td>
             <td class="fw-bold">{{ inscripcion.cliente.nombre }}</td>
             <td><span class="badge bg-primary">{{ inscripcion.plan.nombrePlan }}</span></td>
-            <td>
-              <a href="{{ url_for('qr.generar_qr', id_cliente=inscripcion.cliente.idCliente) }}" class="btn btn-sm btn-info">
-                <i class="bi bi-qr-code"></i> Ver QR
-              </a>
-            </td>
           </tr>
           {% else %}
           <tr>
-            <td colspan="4" class="text-center py-4 text-muted">No se han registrado inscripciones aún.</td>
+            <td colspan="3" class="text-center py-4 text-muted">No se han registrado inscripciones aún.</td>
           </tr>
           {% endfor %}
         </tbody>

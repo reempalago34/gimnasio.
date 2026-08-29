@@ -53,30 +53,13 @@ def dashboard():
             hora_salida=None
         ).first()
     
-    # Información de QR para usuarios con inscripciones
-    qr_info = None
-    if current_user.rol == 'usuario':
-        cliente = Cliente.query.filter_by(nombre=current_user.nombre).first()
-        if cliente:
-            inscripcion = Inscripcion.query.filter_by(idCliente=cliente.idCliente).order_by(Inscripcion.fecha.desc()).first()
-            if inscripcion:
-                from app.routes.qr_routes import verificar_estado_pago
-                pagado, mensaje_pago = verificar_estado_pago(cliente.idCliente)
-                qr_info = {
-                    'cliente': cliente,
-                    'inscripcion': inscripcion,
-                    'pagado': pagado,
-                    'mensaje_pago': mensaje_pago
-                }
-
-    return render_template('dashboard.html', 
-                           total_clientes=total_clientes, 
+    return render_template('dashboard.html',
+                           total_clientes=total_clientes,
                            total_planes=total_planes,
                            total_inscripciones=total_inscripciones,
                            inscripciones=activas,
                            mis_horarios=mis_horarios,
-                           asistencia_cliente=asistencia_cliente,
-                           qr_info=qr_info)
+                           asistencia_cliente=asistencia_cliente)
 
 @bp.route('/logout')
 @login_required
