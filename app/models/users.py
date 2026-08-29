@@ -61,4 +61,10 @@ class User(db.Model, UserMixin):
     def save(self):
         db.session.add(self)
         db.session.commit()
+    
+    def tiene_inscripcion_activa(self):
+        from app.models.inscripcion import Inscripcion
+        from app.models.cliente import Cliente
+        inscripcion = Inscripcion.query.join(Cliente).filter(Cliente.nombre == self.nombre).first()
+        return inscripcion is not None
 

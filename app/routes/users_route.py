@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, jsonif
 from flask_login import login_required, current_user, login_user
 from app.models.users import User
 from app import db
+from functools import wraps
 from io import BytesIO
 import base64
 import json
@@ -9,17 +10,29 @@ import json
 bp = Blueprint('user', __name__, url_prefix='/User')
 
 
+def admin_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.rol != 'admin':
+            flash('No tienes permisos para acceder a esta sección.', 'danger')
+            return redirect(url_for('auth.dashboard'))
+        return f(*args, **kwargs)
+    return login_required(wrapper)
+
+
 @bp.route('/')
+@admin_required
 def index():
     data = User.query.all()
     return render_template('users/index.html', data=data)
 
 @bp.route('/js')
+@admin_required
 def indexjs():
     data = User.query.all()
         # Serializar los datos usando una comprensión de lista
     result = [user.to_dict() for user in data]  # Asegúrate de que el modelo User tenga un método to_dict()
-    
+
     # Devolver la respuesta JSON
     return jsonify(result)
 
@@ -139,8 +152,12 @@ def edit(id):
 
     return render_template('users/edit.html', user=user)
 @bp.route('/detail/<int:id>')
+@login_required
 def detail(id):
     user = User.query.get_or_404(id)
+    if current_user.idUser != user.idUser and current_user.rol != 'admin':
+        flash('No tienes permisos para ver este usuario.', 'danger')
+        return redirect(url_for('auth.dashboard'))
     return render_template('users/detail.html', user=user)
 
 @bp.route('/delete/<int:id>', methods=['POST'])

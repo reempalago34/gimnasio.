@@ -52,6 +52,22 @@ def dashboard():
             idUser=current_user.idUser,
             hora_salida=None
         ).first()
+    
+    # Información de QR para usuarios con inscripciones
+    qr_info = None
+    if current_user.rol == 'usuario':
+        cliente = Cliente.query.filter_by(nombre=current_user.nombre).first()
+        if cliente:
+            inscripcion = Inscripcion.query.filter_by(idCliente=cliente.idCliente).order_by(Inscripcion.fecha.desc()).first()
+            if inscripcion:
+                from app.routes.qr_routes import verificar_estado_pago
+                pagado, mensaje_pago = verificar_estado_pago(cliente.idCliente)
+                qr_info = {
+                    'cliente': cliente,
+                    'inscripcion': inscripcion,
+                    'pagado': pagado,
+                    'mensaje_pago': mensaje_pago
+                }
 
     return render_template('dashboard.html', 
                            total_clientes=total_clientes, 
@@ -59,7 +75,8 @@ def dashboard():
                            total_inscripciones=total_inscripciones,
                            inscripciones=activas,
                            mis_horarios=mis_horarios,
-                           asistencia_cliente=asistencia_cliente)
+                           asistencia_cliente=asistencia_cliente,
+                           qr_info=qr_info)
 
 @bp.route('/logout')
 @login_required
@@ -67,4 +84,3 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('auth.login'))
-

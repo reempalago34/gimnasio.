@@ -13,7 +13,7 @@ def create_app():
     global _db_initialized
     
     app = Flask(__name__)    
-    app.config.from_object('config.Config')
+    app.config.from_object('config.config.Config')
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -52,7 +52,7 @@ def create_app():
     from app.routes import (
         auth, users_route,
         users_route_async,
-        cliente_routes, plan_routes, inscripcion_routes, horario_routes, pago_routes
+        cliente_routes, plan_routes, inscripcion_routes, horario_routes, pago_routes, qr_routes
     )
     app.register_blueprint(auth.bp)
     app.register_blueprint(users_route.bp)
@@ -62,6 +62,7 @@ def create_app():
     app.register_blueprint(inscripcion_routes.bp)
     app.register_blueprint(horario_routes.bp)
     app.register_blueprint(pago_routes.bp)
+    app.register_blueprint(qr_routes.bp)
 
     @app.route('/favicon.ico')
     def favicon():

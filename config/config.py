@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 if os.environ.get('FLASK_ENV') == 'development':
     load_dotenv()
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+# Subir un nivel para llegar a la raíz del proyecto desde la carpeta config/
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 class Config:
     # Si existe DATABASE_URL la usa (Coolify/Docker), si no usa SQLite local
