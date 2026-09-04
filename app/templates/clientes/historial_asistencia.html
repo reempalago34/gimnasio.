@@ -39,10 +39,10 @@
                         </td>
                         {% endif %}
                         <td>{{ asistencia.fecha.strftime('%d/%m/%Y') }}</td>
-                        <td class="text-success"><i class="bi bi-door-open me-1"></i>{{ asistencia.hora_entrada.strftime('%H:%M:%S') }}</td>
+                        <td class="text-success"><i class="bi bi-door-open me-1"></i>{{ asistencia.hora_entrada.strftime('%I:%M:%S %p') }}</td>
                         <td class="text-warning">
                             {% if asistencia.hora_salida %}
-                                <i class="bi bi-door-closed me-1"></i>{{ asistencia.hora_salida.strftime('%H:%M:%S') }}
+                                <i class="bi bi-door-closed me-1"></i>{{ asistencia.hora_salida.strftime('%I:%M:%S %p') }}
                             {% else %}
                                 <span class="badge bg-danger pulse-animation">En el gimnasio</span>
                             {% endif %}

@@ -13,7 +13,7 @@
       {% if asistencia_cliente %}
         <div class="d-flex align-items-center gap-3">
           <div class="text-end">
-            <small class="d-block text-white-50">Llegaste a las: {{ asistencia_cliente.hora_entrada.strftime('%H:%M') }}</small>
+            <small class="d-block text-white-50">Llegaste a las: {{ asistencia_cliente.hora_entrada.strftime('%I:%M %p') }}</small>
             <span class="badge bg-success border border-white-50">Sesión en curso</span>
           </div>
           <a href="{{ url_for('cliente_routes.marcar_salida', id_asistencia=asistencia_cliente.idAsistencia) }}" class="btn btn-danger px-4 py-2 rounded-pill shadow-sm">
@@ -149,7 +149,7 @@
         <tbody>
           {% for inscripcion in inscripciones %}
           <tr>
-            <td class="ps-4 text-muted">{{ inscripcion.fecha.strftime('%d/%m/%Y %H:%M') if inscripcion.fecha else 'N/A'
+            <td class="ps-4 text-muted">{{ inscripcion.fecha.strftime('%d/%m/%Y %I:%M %p') if inscripcion.fecha else 'N/A'
               }}</td>
             <td class="fw-bold">{{ inscripcion.cliente.nombre }}</td>
             <td><span class="badge bg-primary">{{ inscripcion.plan.nombrePlan }}</span></td>

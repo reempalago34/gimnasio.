@@ -26,7 +26,7 @@
                 <tbody>
                     {% for pago in pagos %}
                     <tr>
-                        <td>{{ pago.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ pago.fecha.strftime('%d/%m/%Y %I:%M %p') }}</td>
                         <td class="fw-bold text-white">{{ pago.cliente.nombre }}</td>
                         <td class="text-success fw-bold">${{ "{:,.2f}".format(pago.monto) }}</td>
                         <td><span class="badge bg-secondary">{{ pago.metodo_pago }}</span></td>

@@ -25,7 +25,7 @@
                 {% for inscripcion in inscripciones %}
                 <tr>
                     <td>{{ inscripcion.idInscripcion }}</td>
-                    <td>{{ inscripcion.fecha.strftime('%Y-%m-%d %H:%M') if inscripcion.fecha else 'N/A' }}</td>
+                    <td>{{ inscripcion.fecha.strftime('%Y-%m-%d %I:%M %p') if inscripcion.fecha else 'N/A' }}</td>
                     <td class="fw-bold text-primary">{{ inscripcion.cliente.nombre }}</td>
                     <td><span class="badge bg-success">{{ inscripcion.plan.nombrePlan }}</span></td>
                     <td>
