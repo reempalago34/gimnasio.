@@ -46,8 +46,8 @@ def add():
         confirmPassword = request.form.get('confirmPassword')
 
         # Validar campos obligatorios
-        if not nameUser or not password or not confirmPassword:
-            flash('Todos los campos son obligatorios.', 'danger')
+        if not nameUser or not password or not confirmPassword or not emailUser:
+            flash('Todos los campos son obligatorios, incluyendo el correo (se usa para recuperar tu cuenta).', 'danger')
             return render_template('users/add.html')
 
         # Validar que las contraseñas coincidan
