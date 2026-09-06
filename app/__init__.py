@@ -1,18 +1,15 @@
 from flask import Flask, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+import logging
 import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-
-# Variable para rastrear si las tablas ya fueron creadas
-_db_initialized = False
+logger = logging.getLogger(__name__)
 
 def create_app():
-    global _db_initialized
-    
-    app = Flask(__name__)    
+    app = Flask(__name__)
     app.config.from_object('config.config.Config')
     db.init_app(app)
     login_manager.init_app(app)
@@ -32,21 +29,15 @@ def create_app():
     def load_user(idUser):
         return User.query.get(int(idUser))
 
-    # Inicializar BD en el primer request para evitar errores de conexión
-    @app.before_request
-    def init_db():
-        global _db_initialized
-        if not _db_initialized:
-            try:
-                with app.app_context():
-                    db.create_all()
-                    seed_admin(app)
-                    _db_initialized = True
-                    print("Database initialized successfully")
-            except Exception as e:
-                # Log el error pero no falla la app
-                print(f"Warning: Could not initialize database on first request: {str(e)}")
-                # Intenta de nuevo en el siguiente request
+    # Inicializar BD al arrancar el proceso (una vez por worker de Gunicorn,
+    # no por request; evita la condicion de carrera de antes)
+    with app.app_context():
+        try:
+            db.create_all()
+            seed_admin(app)
+            logger.info("Database initialized successfully")
+        except Exception:
+            logger.exception("Could not initialize database at startup")
 
     # Register blueprints
     from app.routes import (
@@ -77,8 +68,9 @@ def create_app():
             # Intenta hacer una query simple para verificar la BD
             db.session.execute(db.text('SELECT 1'))
             return {'status': 'healthy'}, 200
-        except Exception as e:
-            return {'status': 'unhealthy', 'error': str(e)}, 503
+        except Exception:
+            logger.exception("Health check failed")
+            return {'status': 'unhealthy'}, 503
 
     @app.errorhandler(404)
     def not_found(e):
@@ -88,8 +80,8 @@ def create_app():
 
     @app.errorhandler(Exception)
     def handle_error(e):
-        print(f"An error occurred: {str(e)}")
-        return {"error": str(e)}, 500
+        logger.exception("Unhandled exception while processing request")
+        return {"error": "Ocurrio un error interno. Intenta de nuevo mas tarde."}, 500
 
     return app
 
