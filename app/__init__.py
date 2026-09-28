@@ -8,9 +8,11 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 logger = logging.getLogger(__name__)
 
-def create_app():
+def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object('config.config.Config')
+    if config:
+        app.config.update(config)
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
