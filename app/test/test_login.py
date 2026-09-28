@@ -1,38 +1,93 @@
-def test_login_success(client, user):
-    # Enviar una solicitud POST con las credenciales correctas
+"""Pruebas de login y logout."""
+
+
+def test_login_exitoso(client, normal_user):
     response = client.post('/', data={
-        'nameUser': user.nameUser,
-        'passwordUser': 'test_password'
+        'nameUser': normal_user.nombre,
+        'passwordUser': 'pass12345',
     }, follow_redirects=True)
-    
-    # Verificar que el login fue exitoso y que el usuario fue redirigido al dashboard
+
     assert response.status_code == 200
-    
-    # Buscar el texto del nuevo dashboard elegante
-    assert b"Hola" in response.data
-    
-def test_login_invalid_credentials(client):
-  # Enviar una solicitud POST con credenciales incorrectas
-  response = client.post('/', data={
-      'nameUser': 'wronguser',
-      'passwordUser': 'wrongskdfghgpassword'
-  }, follow_redirects=True)
+    assert '¡Hola, usuario_test!'.encode() in response.data
 
-  # Verificar que el login fue rechazado
-  assert response.status_code == 200
-  assert b"Invalid credentials. Please try again." in response.data
-  
-# test_auth.py
-from flask_login import login_user
 
-def test_login_already_authenticated(client, user):
-    # Simular un usuario autenticado
-    with client:
-        with client.session_transaction() as session:
-          # Simula que el usuario está autenticado
-          session['_user_id'] = str(user.idUser)
-        
-        # El usuario ya autenticado debería ser redirigido al dashboard
-        response = client.get('/dashboard', follow_redirects=True)
-        assert response.status_code == 200
-    assert b"Publicaciones Recientes" in response.data
+def test_login_credenciales_invalidas(client, normal_user):
+    response = client.post('/', data={
+        'nameUser': normal_user.nombre,
+        'passwordUser': 'clave-mala',
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Invalid credentials. Please try again.' in response.data
+    assert b'Iniciar Sesi' in response.data  # permanece en el login
+
+
+def test_login_usuario_inexistente(client):
+    response = client.post('/', data={
+        'nameUser': 'no_existe',
+        'passwordUser': 'cualquiera123',
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Invalid credentials. Please try again.' in response.data
+
+
+def test_login_get_muestra_formulario(client):
+    response = client.get('/')
+
+    assert response.status_code == 200
+    assert b'nameUser' in response.data
+    assert b'passwordUser' in response.data
+
+
+def test_usuario_ya_autenticado_se_redirige_al_dashboard(client, normal_user):
+    client.post('/', data={
+        'nameUser': normal_user.nombre,
+        'passwordUser': 'pass12345',
+    })
+
+    response = client.get('/')
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/dashboard')
+
+
+def test_dashboard_sin_sesion_redirige_a_login(client):
+    response = client.get('/dashboard')
+
+    assert response.status_code == 302
+    # Flask-Login agrega ?next= para volver al dashboard tras el login
+    assert response.headers['Location'].startswith('/?next=')
+
+
+def test_logout(client, normal_user):
+    client.post('/', data={
+        'nameUser': normal_user.nombre,
+        'passwordUser': 'pass12345',
+    })
+
+    response = client.get('/logout', follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'You have been logged out.' in response.data
+    assert b'Iniciar Sesi' in response.data
+
+
+def test_dashboard_sin_sesion_despues_de_logout(client, normal_user):
+    client.post('/', data={
+        'nameUser': normal_user.nombre,
+        'passwordUser': 'pass12345',
+    })
+    client.get('/logout')
+
+    response = client.get('/dashboard')
+
+    assert response.status_code == 302
+    assert response.headers['Location'].startswith('/?next=')
+
+
+def test_dashboard_muestra_totales(admin_client, plan, cliente):
+    response = admin_client.get('/dashboard')
+
+    assert response.status_code == 200
+    assert '¡Hola, admin_test!'.encode() in response.data
